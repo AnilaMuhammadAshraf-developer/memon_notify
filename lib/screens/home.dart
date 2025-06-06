@@ -12,7 +12,7 @@ class HomeScreen extends StatelessWidget{
       body:Center(
         child: SelectableText(
             fcmToken != null
-                ? '📲 Token:\n$fcmToken'
+                ? 'Token:\n$fcmToken'
                 : 'Getting FCM token...',
             textAlign: TextAlign.center,
           ),

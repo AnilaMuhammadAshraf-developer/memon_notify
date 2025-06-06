@@ -8,7 +8,7 @@ import 'firebase_options.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  print("🔕 Background message received: ${message.notification?.title}");
+  print("Background message received: ${message.notification?.title}");
 }
 
 void main() async{
@@ -27,11 +27,13 @@ class MyApp extends StatefulWidget{
 }
 class _MyAppState extends State<MyApp>{
     String? _fcmToken;
-
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
   @override
   void initState() {
     super.initState();
+     WidgetsBinding.instance.addPostFrameCallback((_) {
     _initFirebaseMessaging();
+  });
   }
   void _initFirebaseMessaging() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
@@ -44,20 +46,28 @@ class _MyAppState extends State<MyApp>{
     setState(() {
       _fcmToken = token;
     });
-    print("📱 FCM Token: $token");
+  
 
     // Listen to messages when app is in foreground
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('📩 Foreground Message: ${message.notification?.title}');
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('🔔 ${message.notification?.title ?? "New Notification"}'),
-      ));
+      print('Foreground Message: ${message.notification?.title}');
+   
+  
+      if (mounted) {
+        print("context mounted");
+       scaffoldMessengerKey.currentState?.showSnackBar(SnackBar(
+          content: Text('🔔 ${message.notification?.title ?? "New Notification"}'),
+        ));
+      }
+  
+      
     });
   }
 
   @override
   Widget build(BuildContext context){
     return MaterialApp(
+       scaffoldMessengerKey: scaffoldMessengerKey,
       debugShowCheckedModeBanner: false,
       title: AppStrings.appTitle,
       home: HomeScreen(fcmToken: _fcmToken),
